@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 type Candidate = {
   name: string;
@@ -92,7 +93,6 @@ export default function Create() {
     setLoading(true);
     const isoEndTime = new Date(data.end_time).toISOString();
     const formattedData = { ...data, end_time: isoEndTime, emails }; // Include emails array in payload
-    console.log(formattedData);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -107,7 +107,6 @@ export default function Create() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(result);
         toast.success("Election created successfully!");
         await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for toast to show
         router.push(`/election/${result.id}`);
@@ -125,6 +124,15 @@ export default function Create() {
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-base-200 p-8">
+      <div className="absolute top-4 left-4">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center space-x-1 text-primary hover:text-primary-focus"
+        >
+          <ArrowLeftIcon className="h-6 w-6" />
+          <span>Back to Home</span>
+        </button>
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-lg bg-base-100 p-8 rounded-lg shadow-lg space-y-6"
