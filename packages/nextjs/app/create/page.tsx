@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Papa from "papaparse";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 type Candidate = {
   name: string;
@@ -12,16 +14,20 @@ type Inputs = {
   title: string;
   candidates: Candidate[];
   end_time: string;
+  emails: string[];
 };
 
 export default function Create() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>([]); // State to store parsed emails
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const {
     register,
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
@@ -34,10 +40,59 @@ export default function Create() {
     name: "candidates",
   });
 
+  // Function to handle file upload and parse CSV
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileError(null); // Reset file error
+
+    if (file && file.type === "text/csv") {
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        complete: (result: any) => {
+          const parsedEmails = result.data.map((row: string[]) => row[0].trim());
+          validateEmails(parsedEmails);
+        },
+        error: error => {
+          setFileError("Failed to parse CSV file.");
+          console.error("Error parsing CSV:", error);
+        },
+      });
+    } else {
+      setFileError("Please upload a valid CSV file.");
+    }
+  };
+
+  // Function to validate emails
+  const validateEmails = (parsedEmails: string[]) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmails = parsedEmails.filter(email => emailRegex.test(email));
+
+    if (validEmails.length === parsedEmails.length) {
+      setEmails(validEmails);
+      toast.success("Emails uploaded successfully.");
+    } else {
+      setFileError("CSV contains invalid email addresses.");
+      setEmails([]); // Reset emails if there’s an invalid email
+    }
+  };
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
+    // Check if there are at least two candidates
+    if (data.candidates.length < 2) {
+      setError("candidates", { type: "manual", message: "Please add at least two candidates." });
+      return;
+    }
+
+    if (emails.length === 0) {
+      setFileError("Please upload a CSV file with valid emails.");
+      return;
+    }
+
     setLoading(true);
     const isoEndTime = new Date(data.end_time).toISOString();
-    const formattedData = { ...data, end_time: isoEndTime };
+    const formattedData = { ...data, end_time: isoEndTime, emails }; // Include emails array in payload
+    console.log(formattedData);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,12 +108,16 @@ export default function Create() {
       if (response.ok) {
         const result = await response.json();
         console.log(result);
+        toast.success("Election created successfully!");
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for toast to show
         router.push(`/election/${result.id}`);
       } else {
         console.error("Failed to create election");
+        toast.error("Failed to create election. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -96,7 +155,17 @@ export default function Create() {
             type="datetime-local"
             id="end_time"
             className="input input-bordered w-full"
-            {...register("end_time", { required: "End time is required" })}
+            {...register("end_time", {
+              required: "End time is required",
+              validate: value => {
+                const selectedDate = new Date(value);
+                const currentDate = new Date();
+                if (selectedDate <= currentDate) {
+                  return "Please select a future date and time.";
+                }
+                return true;
+              },
+            })}
           />
           {errors.end_time && <p className="text-red-500 mt-1">{errors.end_time.message}</p>}
         </div>
@@ -120,6 +189,22 @@ export default function Create() {
           <button type="button" className="btn btn-accent w-full mt-2" onClick={() => append({ name: "" })}>
             Add Candidate
           </button>
+          {errors.candidates && <p className="text-red-500 mt-2">{errors.candidates.message}</p>}
+        </div>
+
+        {/* File Upload for Emails */}
+        <div className="form-control">
+          <label htmlFor="emails" className="label">
+            <span className="label-text">Upload Emails CSV</span>
+          </label>
+          <input
+            type="file"
+            id="emails"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="file-input file-input-bordered w-full"
+          />
+          {fileError && <p className="text-red-500 mt-1">{fileError}</p>}
         </div>
 
         {/* Submit Button */}
