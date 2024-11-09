@@ -39,6 +39,7 @@
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
     "@types/papaparse": "^5",
+    "@types/react-modal": "^3",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },
@@ -47,6 +48,8 @@
   },
   "dependencies": {
     "papaparse": "^5.4.1",
-    "react-hook-form": "^7.53.2"
+    "react-hook-form": "^7.53.2",
+    "react-modal": "^3.16.1",
+    "recharts": "^2.13.3"
   }
 }
