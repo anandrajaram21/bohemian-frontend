@@ -15,7 +15,8 @@ type Inputs = {
   title: string;
   candidates: Candidate[];
   end_time: string;
-  emails: string[];
+  voter_emails: string[];
+  voting_system: string;
 };
 
 export default function Create() {
@@ -33,6 +34,7 @@ export default function Create() {
   } = useForm<Inputs>({
     defaultValues: {
       candidates: [{ name: "" }],
+      voting_system: "traditional",
     },
   });
 
@@ -78,6 +80,20 @@ export default function Create() {
     }
   };
 
+  const addEmail = () => {
+    setEmails([...emails, ""]);
+  };
+
+  const removeEmail = (index: number) => {
+    setEmails(emails.filter((_, i) => i !== index));
+  };
+
+  const updateEmail = (index: number, newEmail: string) => {
+    const updatedEmails = [...emails];
+    updatedEmails[index] = newEmail;
+    setEmails(updatedEmails);
+  };
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
     // Check if there are at least two candidates
     if (data.candidates.length < 2) {
@@ -92,9 +108,11 @@ export default function Create() {
 
     setLoading(true);
     const isoEndTime = new Date(data.end_time).toISOString();
-    const formattedData = { ...data, end_time: isoEndTime, emails }; // Include emails array in payload
+    const formattedData = { ...data, end_time: isoEndTime, voter_emails: emails }; // Include emails array in payload
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+    console.log(formattedData);
 
     try {
       const response = await fetch(`${API_URL}/elections`, {
@@ -142,7 +160,7 @@ export default function Create() {
         {/* Election Title */}
         <div className="form-control">
           <label htmlFor="title" className="label">
-            <span className="label-text">Election Title</span>
+            <span className="label-text text-lg font-semibold">Election Title</span>
           </label>
           <input
             type="text"
@@ -154,10 +172,28 @@ export default function Create() {
           {errors.title && <p className="text-red-500 mt-1">{errors.title.message}</p>}
         </div>
 
+        {/* Voting System Selection */}
+        <div className="form-control">
+          <label htmlFor="voting_system" className="label">
+            <span className="label-text font-semibold text-lg">Select Voting System</span>
+          </label>
+          <select
+            id="voting_system"
+            className="select select-bordered w-full"
+            {...register("voting_system", { required: "Please select a voting system" })}
+          >
+            <option value="traditional">Traditional Voting</option>
+            <option value="ranked_choice">Ranked Choice Voting</option>
+            <option value="score_voting">Score Voting</option>
+            <option value="quadratic_voting">Quadratic Voting</option>
+          </select>
+          {errors.voting_system && <p className="text-red-500 mt-1">{errors.voting_system.message}</p>}
+        </div>
+
         {/* Election Expiry Date */}
         <div className="form-control">
           <label htmlFor="end_time" className="label">
-            <span className="label-text">Election Expiry Date</span>
+            <span className="label-text font-semibold text-lg">Election Expiry Date</span>
           </label>
           <input
             type="datetime-local"
@@ -203,7 +239,7 @@ export default function Create() {
         {/* File Upload for Emails */}
         <div className="form-control">
           <label htmlFor="emails" className="label">
-            <span className="label-text">Upload Emails CSV</span>
+            <span className="label-text font-semibold text-lg">Upload Emails CSV</span>
           </label>
           <input
             type="file"
@@ -213,6 +249,41 @@ export default function Create() {
             className="file-input file-input-bordered w-full"
           />
           {fileError && <p className="text-red-500 mt-1">{fileError}</p>}
+        </div>
+
+        {/* Emails Table */}
+        <div className="form-control">
+          <h3 className="label-text font-semibold text-lg mb-2">Email List</h3>
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {emails.map((email, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="text"
+                      value={email}
+                      onChange={e => updateEmail(index, e.target.value)}
+                      className="input input-bordered w-full"
+                    />
+                  </td>
+                  <td>
+                    <button onClick={() => removeEmail(index)} className="btn btn-error btn-sm">
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button type="button" onClick={addEmail} className="btn btn-accent w-full mt-2">
+            Add Email
+          </button>
         </div>
 
         {/* Submit Button */}

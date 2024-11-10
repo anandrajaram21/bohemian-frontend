@@ -6,85 +6,48 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
-    YourContract: {
+    VotingSystem: {
       address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
         {
           anonymous: false,
           inputs: [
             {
               indexed: true,
-              internalType: "address",
-              name: "greetingSetter",
-              type: "address",
-            },
-            {
-              indexed: false,
               internalType: "string",
-              name: "newGreeting",
+              name: "authorizationString",
               type: "string",
             },
             {
               indexed: false,
-              internalType: "bool",
-              name: "premium",
-              type: "bool",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
+              internalType: "string",
+              name: "voteData",
+              type: "string",
             },
           ],
-          name: "GreetingChange",
+          name: "VoteRecorded",
           type: "event",
         },
         {
           inputs: [],
-          name: "greeting",
+          name: "getAllVotes",
           outputs: [
             {
-              internalType: "string",
+              components: [
+                {
+                  internalType: "string",
+                  name: "authorizationString",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "voteData",
+                  type: "string",
+                },
+              ],
+              internalType: "struct VotingSystem.Vote[]",
               name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "premium",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
+              type: "tuple[]",
             },
           ],
           stateMutability: "view",
@@ -93,19 +56,30 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "index",
+              type: "uint256",
+            },
+          ],
+          name: "getVote",
+          outputs: [
+            {
               internalType: "string",
-              name: "_newGreeting",
+              name: "",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "",
               type: "string",
             },
           ],
-          name: "setGreeting",
-          outputs: [],
-          stateMutability: "payable",
+          stateMutability: "view",
           type: "function",
         },
         {
           inputs: [],
-          name: "totalCounter",
+          name: "getVoteCount",
           outputs: [
             {
               internalType: "uint256",
@@ -119,32 +93,20 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "address",
-              name: "",
-              type: "address",
+              internalType: "string",
+              name: "_authorizationString",
+              type: "string",
             },
-          ],
-          name: "userGreetingCounter",
-          outputs: [
             {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
+              internalType: "string",
+              name: "_voteData",
+              type: "string",
             },
           ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "withdraw",
+          name: "recordVote",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
-        },
-        {
-          stateMutability: "payable",
-          type: "receive",
         },
       ],
       inheritedFunctions: {},

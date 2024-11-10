@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import Modal from "react-modal";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import Traditional from "~~/components/voting-systems/Traditional";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -29,9 +29,7 @@ export default function ElectionPage() {
   const [results, setResults] = useState<Result[]>([]);
   const [winner, setWinner] = useState<Winner | null>(null);
   const [isDraw, setIsDraw] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [username, setUsername] = useState("");
+  const [votingSystem, setVotingSystem] = useState("");
 
   // Fetch election results when electionId is available
   useEffect(() => {
@@ -48,6 +46,8 @@ export default function ElectionPage() {
         setResults(data.results);
         setWinner(data.winner);
         setIsDraw(data.is_draw);
+        setVotingSystem(data.voting_system);
+        console.log(data);
       } catch (error) {
         toast.error("Error fetching election results.");
         console.error(error);
@@ -56,15 +56,6 @@ export default function ElectionPage() {
 
     fetchResults();
   }, [electionId]);
-
-  const handleVote = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmVote = () => {
-    toast.success("Vote submitted successfully!");
-    setIsModalOpen(false); // Close the modal after confirming
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-base-200 p-8 space-y-6">
@@ -106,55 +97,12 @@ export default function ElectionPage() {
           <div className="flex flex-col items-center">
             {/* Placeholder for different voting UIs */}
             <p>Select your candidate and click the Vote button</p>
-            <button onClick={handleVote} className="btn btn-primary mt-4">
-              Vote
-            </button>
+            {votingSystem === "traditional" ? <Traditional candidates={results} /> : <></>}
           </div>
         </div>
       </div>
 
       {/* OTP Verification Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)} // Allow closing the modal by clicking outside or pressing ESC
-        className="fixed inset-0 flex items-center justify-center"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
-        contentLabel="OTP Verification"
-      >
-        <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-sm">
-          <h3 className="text-xl font-semibold mb-4 text-center">Verify Your Identity</h3>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Email/Username</span>
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              className="input input-bordered w-full"
-              placeholder="Enter email or username"
-            />
-          </div>
-          <div className="form-control mt-4">
-            <label className="label">
-              <span className="label-text">OTP</span>
-            </label>
-            <input
-              type="text"
-              value={otp}
-              onChange={e => setOtp(e.target.value)}
-              className="input input-bordered w-full"
-              placeholder="Enter OTP"
-            />
-          </div>
-          <button onClick={handleConfirmVote} className="btn btn-primary w-full mt-4">
-            Confirm
-          </button>
-          <button onClick={() => setIsModalOpen(false)} className="btn btn-secondary w-full mt-2">
-            Close
-          </button>
-        </div>
-      </Modal>
     </div>
   );
 }
