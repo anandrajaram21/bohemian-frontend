@@ -38,6 +38,7 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@types/crypto-js": "^4",
     "@types/papaparse": "^5",
     "@types/react-modal": "^3",
     "husky": "^9.1.6",
@@ -47,6 +48,7 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "papaparse": "^5.4.1",
     "react-hook-form": "^7.53.2",
     "react-modal": "^3.16.1",

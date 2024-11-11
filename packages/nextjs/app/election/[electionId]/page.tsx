@@ -57,6 +57,12 @@ export default function ElectionPage() {
     fetchResults();
   }, [electionId]);
 
+  if (Array.isArray(electionId)) return <div>Invalid election id</div>;
+
+  if (!electionId) return <div>No election id</div>;
+
+  if (!results) return <div>Loading...</div>;
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-base-200 p-8 space-y-6">
       {/* Back Button */}
@@ -97,7 +103,7 @@ export default function ElectionPage() {
           <div className="flex flex-col items-center">
             {/* Placeholder for different voting UIs */}
             <p>Select your candidate and click the Vote button</p>
-            {votingSystem === "traditional" ? <Traditional candidates={results} /> : <></>}
+            {votingSystem === "traditional" ? <Traditional candidates={results} electionId={electionId} /> : <></>}
           </div>
         </div>
       </div>

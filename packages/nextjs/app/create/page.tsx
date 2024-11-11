@@ -107,12 +107,12 @@ export default function Create() {
     }
 
     setLoading(true);
+    const loadingToastId = toast.loading("Creating election, please wait...");
+
     const isoEndTime = new Date(data.end_time).toISOString();
     const formattedData = { ...data, end_time: isoEndTime, voter_emails: emails }; // Include emails array in payload
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-    console.log(formattedData);
 
     try {
       const response = await fetch(`${API_URL}/elections`, {
@@ -125,16 +125,16 @@ export default function Create() {
 
       if (response.ok) {
         const result = await response.json();
-        toast.success("Election created successfully!");
+        toast.success("Election created successfully!", { id: loadingToastId });
         await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for toast to show
         router.push(`/election/${result.id}`);
       } else {
         console.error("Failed to create election");
-        toast.error("Failed to create election. Please try again.");
+        toast.error("Failed to create election. Please try again.", { id: loadingToastId });
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.", { id: loadingToastId });
     } finally {
       setLoading(false);
     }

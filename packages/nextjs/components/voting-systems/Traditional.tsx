@@ -1,6 +1,10 @@
 import { useState } from "react";
+import sha256 from "crypto-js/sha256";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
+import { parseEther } from "viem";
+import { useAccount, useBalance } from "wagmi";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Candidate = {
   id: number;
@@ -10,22 +14,40 @@ type Candidate = {
 
 type TraditionalVotingProps = {
   candidates: Candidate[];
+  electionId: string;
 };
 
-export default function TraditionalVoting({ candidates }: TraditionalVotingProps) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const MIN_BALANCE = parseEther("0.01"); // Set minimum balance required for gas fees
+
+export default function TraditionalVoting({ candidates, electionId }: TraditionalVotingProps) {
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
 
-  // Function to get the selected candidate's name
+  const { writeContractAsync: writeVotingSystemAsync } = useScaffoldWriteContract("VotingSystem");
+
+  // Wagmi hooks for account and balance
+  const { address, isConnected } = useAccount();
+  const { data: balanceData } = useBalance({ address });
+  const hasSufficientBalance = balanceData ? (balanceData.value >= MIN_BALANCE ? true : false) : false;
+
   const getSelectedCandidateName = () => {
     const candidate = candidates.find(c => c.id === selectedCandidate);
     return candidate ? candidate.name : "Unknown Candidate";
   };
 
   const openModal = () => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet.");
+      return;
+    }
+    if (!hasSufficientBalance) {
+      toast.error("Insufficient funds for gas fees. Please ensure you have at least 0.01 ETH.");
+      return;
+    }
     if (selectedCandidate === null) {
       toast.error("Please select a candidate to vote for.");
       return;
@@ -47,10 +69,36 @@ export default function TraditionalVoting({ candidates }: TraditionalVotingProps
 
     setLoading(true);
     try {
-      console.log(email, otp, selectedCandidate);
-      // TODO: Implement Traditional Voting API call
-      toast.success("Vote submitted successfully!");
-      closeModal();
+      const authorizationHash = sha256(email + otp).toString();
+      const body = JSON.stringify({ vote: selectedCandidate });
+
+      // Send the vote with the authorization header
+      const response = await fetch(`${API_URL}/elections/${electionId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authorizationHash}`,
+        },
+        body,
+      });
+
+      if (response.ok) {
+        try {
+          const result = await writeVotingSystemAsync({
+            functionName: "recordVote",
+            args: [authorizationHash, body],
+          });
+          console.log(result);
+          toast.success("Vote recorded successfully!");
+          closeModal();
+        } catch (e) {
+          toast.error("Failed to submit vote on-chain. Please try again.");
+          console.error(e);
+        }
+      } else {
+        console.error("Failed to submit vote to backend");
+        toast.error("Failed to submit vote. Please try again.");
+      }
     } catch (error) {
       console.error("Error submitting vote:", error);
       toast.error("Failed to submit vote. Please try again.");
@@ -91,6 +139,7 @@ export default function TraditionalVoting({ candidates }: TraditionalVotingProps
         className="fixed inset-0 flex items-center justify-center"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
         contentLabel="Confirm Vote"
+        ariaHideApp={false}
       >
         <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-sm">
           <h3 className="text-xl font-semibold mb-4 text-center">Confirm Your Vote</h3>
