@@ -4,6 +4,114 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  31337: {
+    VotingSystem: {
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      abi: [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "string",
+              name: "authorizationString",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "voteData",
+              type: "string",
+            },
+          ],
+          name: "VoteRecorded",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "getAllVotes",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "string",
+                  name: "authorizationString",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "voteData",
+                  type: "string",
+                },
+              ],
+              internalType: "struct VotingSystem.Vote[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "index",
+              type: "uint256",
+            },
+          ],
+          name: "getVote",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getVoteCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_authorizationString",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_voteData",
+              type: "string",
+            },
+          ],
+          name: "recordVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
