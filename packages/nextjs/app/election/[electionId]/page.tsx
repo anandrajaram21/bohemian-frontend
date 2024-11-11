@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import RankedChoiceVoting from "~~/components/voting-systems/RankedChoice";
 import Traditional from "~~/components/voting-systems/Traditional";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -103,7 +104,11 @@ export default function ElectionPage() {
           <div className="flex flex-col items-center">
             {/* Placeholder for different voting UIs */}
             <p>Select your candidate and click the Vote button</p>
-            {votingSystem === "traditional" ? <Traditional candidates={results} electionId={electionId} /> : <></>}
+            {votingSystem === "traditional" ? (
+              <Traditional candidates={results} electionId={electionId} />
+            ) : votingSystem === "ranked_choice" ? (
+              <RankedChoiceVoting candidates={results} electionId={electionId} />
+            ) : null}
           </div>
         </div>
       </div>
