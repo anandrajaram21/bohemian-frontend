@@ -31,6 +31,7 @@ export default function ElectionPage() {
   const [winner, setWinner] = useState<Winner | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [votingSystem, setVotingSystem] = useState("");
+  const [electionTitle, setElectionTitle] = useState(""); // State for election title
 
   // Fetch election results when electionId is available
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function ElectionPage() {
         setWinner(data.winner);
         setIsDraw(data.is_draw);
         setVotingSystem(data.voting_system);
+        setElectionTitle(data.election_title); // Set election title
         console.log(data);
       } catch (error) {
         toast.error("Error fetching election results.");
@@ -77,6 +79,9 @@ export default function ElectionPage() {
         </button>
       </div>
 
+      {/* Election Title */}
+      <h1 className="text-4xl font-bold text-center text-primary">{electionTitle}</h1>
+
       <h2 className="text-3xl font-bold text-primary">Election Results</h2>
 
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -101,19 +106,25 @@ export default function ElectionPage() {
         {/* Cast Your Vote Section */}
         <div className="bg-base-100 p-6 rounded-lg shadow-lg space-y-4">
           <h3 className="text-xl font-semibold text-center">Cast Your Vote</h3>
-          <div className="flex flex-col items-center">
-            {/* Placeholder for different voting UIs */}
-            <p>Select your candidate and click the Vote button</p>
-            {votingSystem === "traditional" ? (
-              <Traditional candidates={results} electionId={electionId} />
-            ) : votingSystem === "ranked_choice" ? (
-              <RankedChoiceVoting candidates={results} electionId={electionId} />
-            ) : null}
-          </div>
+          {winner ? (
+            <div>
+              <p className="text-center text-lg font-semibold text-green-600">
+                The election is over. The winner is {winner.name} with {winner.votes} votes.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              {/* Placeholder for different voting UIs */}
+              <p>Select your candidate and click the Vote button</p>
+              {votingSystem === "traditional" ? (
+                <Traditional candidates={results} electionId={electionId} />
+              ) : votingSystem === "ranked_choice" ? (
+                <RankedChoiceVoting candidates={results} electionId={electionId} />
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* OTP Verification Modal */}
     </div>
   );
 }
