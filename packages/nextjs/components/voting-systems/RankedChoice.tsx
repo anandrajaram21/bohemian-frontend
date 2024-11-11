@@ -2,9 +2,10 @@ import { useState } from "react";
 import sha256 from "crypto-js/sha256";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
-import { parseEther } from "viem";
-import { useAccount, useBalance } from "wagmi";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+// import { parseEther } from "viem";
+// import { useAccount, useBalance } from "wagmi";
+// import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Candidate = {
   id: number;
@@ -18,7 +19,7 @@ type RankedChoiceVotingProps = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const MIN_BALANCE = parseEther("0.01"); // Set minimum balance required for gas fees
+// const MIN_BALANCE = parseEther("0.01"); // Set minimum balance required for gas fees
 
 export default function RankedChoiceVoting({ candidates, electionId }: RankedChoiceVotingProps) {
   const [rankedCandidates, setRankedCandidates] = useState<Candidate[]>([]);
@@ -27,12 +28,12 @@ export default function RankedChoiceVoting({ candidates, electionId }: RankedCho
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
 
-  const { writeContractAsync: writeVotingSystemAsync } = useScaffoldWriteContract("VotingSystem");
+  // const { writeContractAsync: writeVotingSystemAsync } = useScaffoldWriteContract("VotingSystem");
 
-  // Wagmi hooks for account and balance
-  const { address, isConnected } = useAccount();
-  const { data: balanceData } = useBalance({ address });
-  const hasSufficientBalance = balanceData ? (balanceData.value >= MIN_BALANCE ? true : false) : false;
+  // // Wagmi hooks for account and balance
+  // const { address, isConnected } = useAccount();
+  // const { data: balanceData } = useBalance({ address });
+  // const hasSufficientBalance = balanceData ? (balanceData.value >= MIN_BALANCE ? true : false) : false;
 
   // Helper to handle the ranking order
   const handleCandidateSelect = (candidate: Candidate) => {
@@ -44,14 +45,14 @@ export default function RankedChoiceVoting({ candidates, electionId }: RankedCho
   };
 
   const openModal = () => {
-    if (!isConnected) {
-      toast.error("Please connect your wallet.");
-      return;
-    }
-    if (!hasSufficientBalance) {
-      toast.error("Insufficient funds for gas fees. Please ensure you have at least 0.01 ETH.");
-      return;
-    }
+    // if (!isConnected) {
+    //   toast.error("Please connect your wallet.");
+    //   return;
+    // }
+    // if (!hasSufficientBalance) {
+    //   toast.error("Insufficient funds for gas fees. Please ensure you have at least 0.01 ETH.");
+    //   return;
+    // }
     if (rankedCandidates.length < 2) {
       toast.error("Please select at least two candidates in your preferred order.");
       return;
@@ -94,18 +95,8 @@ export default function RankedChoiceVoting({ candidates, electionId }: RankedCho
       });
 
       if (response.ok) {
-        try {
-          const result = await writeVotingSystemAsync({
-            functionName: "recordVote",
-            args: [authorizationHash, body],
-          });
-          console.log(result);
-          toast.success("Vote recorded successfully!");
-          closeModal();
-        } catch (e) {
-          toast.error("Failed to submit vote on-chain. Please try again.");
-          console.error(e);
-        }
+        toast.success("Vote recorded successfully!");
+        closeModal();
       } else {
         console.error("Failed to submit vote to backend");
         toast.error("Failed to submit vote. Please try again.");

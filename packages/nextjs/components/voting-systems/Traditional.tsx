@@ -2,9 +2,10 @@ import { useState } from "react";
 import sha256 from "crypto-js/sha256";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
-import { parseEther } from "viem";
-import { useAccount, useBalance } from "wagmi";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+// import { parseEther } from "viem";
+// import { useAccount, useBalance } from "wagmi";
+// import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Candidate = {
   id: number;
@@ -18,7 +19,7 @@ type TraditionalVotingProps = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const MIN_BALANCE = parseEther("0.01"); // Set minimum balance required for gas fees
+// const MIN_BALANCE = parseEther("0.01"); // Set minimum balance required for gas fees
 
 export default function TraditionalVoting({ candidates, electionId }: TraditionalVotingProps) {
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
@@ -27,12 +28,12 @@ export default function TraditionalVoting({ candidates, electionId }: Traditiona
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
 
-  const { writeContractAsync: writeVotingSystemAsync } = useScaffoldWriteContract("VotingSystem");
+  // const { writeContractAsync: writeVotingSystemAsync } = useScaffoldWriteContract("VotingSystem");
 
-  // Wagmi hooks for account and balance
-  const { address, isConnected } = useAccount();
-  const { data: balanceData } = useBalance({ address });
-  const hasSufficientBalance = balanceData ? (balanceData.value >= MIN_BALANCE ? true : false) : false;
+  // // Wagmi hooks for account and balance
+  // const { address, isConnected } = useAccount();
+  // const { data: balanceData } = useBalance({ address });
+  // const hasSufficientBalance = balanceData ? (balanceData.value >= MIN_BALANCE ? true : false) : false;
 
   const getSelectedCandidateName = () => {
     const candidate = candidates.find(c => c.id === selectedCandidate);
@@ -40,14 +41,14 @@ export default function TraditionalVoting({ candidates, electionId }: Traditiona
   };
 
   const openModal = () => {
-    if (!isConnected) {
-      toast.error("Please connect your wallet.");
-      return;
-    }
-    if (!hasSufficientBalance) {
-      toast.error("Insufficient funds for gas fees. Please ensure you have at least 0.01 ETH.");
-      return;
-    }
+    // if (!isConnected) {
+    //   toast.error("Please connect your wallet.");
+    //   return;
+    // }
+    // if (!hasSufficientBalance) {
+    //   toast.error("Insufficient funds for gas fees. Please ensure you have at least 0.01 ETH.");
+    //   return;
+    // }
     if (selectedCandidate === null) {
       toast.error("Please select a candidate to vote for.");
       return;
@@ -83,18 +84,18 @@ export default function TraditionalVoting({ candidates, electionId }: Traditiona
       });
 
       if (response.ok) {
-        try {
-          const result = await writeVotingSystemAsync({
-            functionName: "recordVote",
-            args: [authorizationHash, body],
-          });
-          console.log(result);
-          toast.success("Vote recorded successfully!");
-          closeModal();
-        } catch (e) {
-          toast.error("Failed to submit vote on-chain. Please try again.");
-          console.error(e);
-        }
+        // try {
+        //   const result = await writeVotingSystemAsync({
+        //     functionName: "recordVote",
+        //     args: [authorizationHash, body],
+        //   });
+        //   console.log(result);
+        toast.success("Vote recorded successfully!");
+        closeModal();
+        // } catch (e) {
+        //   toast.error("Failed to submit vote on-chain. Please try again.");
+        //   console.error(e);
+        // }
       } else {
         console.error("Failed to submit vote to backend");
         toast.error("Failed to submit vote. Please try again.");
