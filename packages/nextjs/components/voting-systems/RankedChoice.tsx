@@ -95,13 +95,15 @@ export default function RankedChoiceVoting({ candidates, electionId }: RankedCho
 
       if (response.ok) {
         try {
+          const electionIdNumber = BigInt(electionId);
           const result = await writeVotingSystemAsync({
             functionName: "recordVote",
-            args: [authorizationHash, body],
+            args: [electionIdNumber, authorizationHash, body],
           });
           console.log(result);
           toast.success("Vote recorded successfully!");
           closeModal();
+          window.location.reload();
         } catch (e) {
           toast.error("Failed to submit vote on-chain. Please try again.");
           console.error(e);

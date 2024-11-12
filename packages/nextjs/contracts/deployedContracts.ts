@@ -13,6 +13,12 @@ const deployedContracts = {
           anonymous: false,
           inputs: [
             {
+              indexed: false,
+              internalType: "uint256",
+              name: "electionId",
+              type: "uint256",
+            },
+            {
               indexed: true,
               internalType: "string",
               name: "authorizationString",
@@ -29,31 +35,6 @@ const deployedContracts = {
           type: "event",
         },
         {
-          inputs: [],
-          name: "getAllVotes",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "string",
-                  name: "authorizationString",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "voteData",
-                  type: "string",
-                },
-              ],
-              internalType: "struct VotingSystem.Vote[]",
-              name: "",
-              type: "tuple[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "uint256",
@@ -63,6 +44,11 @@ const deployedContracts = {
           ],
           name: "getVote",
           outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
             {
               internalType: "string",
               name: "",
@@ -92,6 +78,47 @@ const deployedContracts = {
         },
         {
           inputs: [
+            {
+              internalType: "uint256",
+              name: "_electionId",
+              type: "uint256",
+            },
+          ],
+          name: "getVotesByElectionId",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "electionId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "authorizationString",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "voteData",
+                  type: "string",
+                },
+              ],
+              internalType: "struct VotingSystem.Vote[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_electionId",
+              type: "uint256",
+            },
             {
               internalType: "string",
               name: "_authorizationString",

@@ -120,7 +120,9 @@ export default function ElectionPage() {
                 <Traditional candidates={results} electionId={electionId} />
               ) : votingSystem === "ranked_choice" ? (
                 <RankedChoiceVoting candidates={results} electionId={electionId} />
-              ) : null}
+              ) : (
+                <></>
+              )}
             </div>
           )}
         </div>

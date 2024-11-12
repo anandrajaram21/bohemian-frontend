@@ -84,20 +84,24 @@ export default function TraditionalVoting({ candidates, electionId }: Traditiona
 
       if (response.ok) {
         try {
+          const electionIdNumber = BigInt(electionId);
           const result = await writeVotingSystemAsync({
             functionName: "recordVote",
-            args: [authorizationHash, body],
+            args: [electionIdNumber, authorizationHash, body],
           });
           console.log(result);
           toast.success("Vote recorded successfully!");
           closeModal();
+          window.location.reload();
         } catch (e) {
           toast.error("Failed to submit vote on-chain. Please try again.");
           console.error(e);
         }
       } else {
-        console.error("Failed to submit vote to backend");
-        toast.error("Failed to submit vote. Please try again.");
+        const res = await response.json();
+        console.log(res);
+        // console.error("Failed to submit vote to backend");
+        toast.error(res.detail);
       }
     } catch (error) {
       console.error("Error submitting vote:", error);
