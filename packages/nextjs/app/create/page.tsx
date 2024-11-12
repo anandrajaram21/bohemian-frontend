@@ -184,8 +184,6 @@ export default function Create() {
           >
             <option value="traditional">Traditional Voting</option>
             <option value="ranked_choice">Ranked Choice Voting</option>
-            <option value="score_voting">Score Voting</option>
-            <option value="quadratic_voting">Quadratic Voting</option>
           </select>
           {errors.voting_system && <p className="text-red-500 mt-1">{errors.voting_system.message}</p>}
         </div>
